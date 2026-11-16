@@ -3,7 +3,7 @@
 **Safe, zero-port-scanning local network discovery dashboard** built by [**KHALIDioi**](https://github.com/KHALIDioi).
 
 > **Live Interactive Website:** [https://khalidioi.github.io/netcheck/](https://khalidioi.github.io/netcheck/)  
-> **Download Desktop App (Windows):** [Latest Release](https://github.com/KHALIDioi/netcheck/releases/latest)
+> **Direct Download (Windows):** [Download NetCheck.exe](https://github.com/KHALIDioi/netcheck/releases/latest/download/NetCheck.exe) · [All Releases & Versions](https://github.com/KHALIDioi/netcheck/releases)
 
 ---
 

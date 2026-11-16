@@ -229,7 +229,8 @@
       demoBadge: "Live Interactive Demo",
       demoDescription:
         "Browsers block websites from scanning your private Wi-Fi for security. Try every feature right here on a simulated home network, or download the local desktop app to scan your real Wi-Fi offline.",
-      demoDownloadBtn: "Download Local App",
+      demoDownloadBtn: "Download NetCheck.exe",
+      demoReleasesBtn: "All Releases",
       footerCreated: "Created by",
       footerRights: "All Rights Reserved · Strictly Zero Port Scanning",
       formatFoundPhase: (n) => `Found ${n} active device${n === 1 ? "" : "s"}`,
@@ -443,7 +444,8 @@
       demoBadge: "معاينة تفاعلية مباشرة",
       demoDescription:
         "تمنع المتصفحات المواقع من فحص شبكة Wi-Fi الخاصة بك لحماية خصوصيتك. جرّب جميع ميزات NetCheck هنا على شبكة منزلية محاكاة، أو نزّل التطبيق المحلي لفحص شبكتك الحقيقية بدون إنترنت.",
-      demoDownloadBtn: "تنزيل التطبيق المحلي",
+      demoDownloadBtn: "تنزيل NetCheck.exe",
+      demoReleasesBtn: "كل الإصدارات",
       footerCreated: "تطوير",
       footerRights: "جميع الحقوق محفوظة · بدون فحص منافذ نهائياً",
       formatFoundPhase: (n) => {

@@ -2237,8 +2237,22 @@ body {
   line-height: 1.5;
 }
 
-.demo-download-btn {
+.demo-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demo-download-btn,
+.demo-releases-btn {
   text-decoration: none;
+}
+
+.demo-releases-btn {
+  height: 38px;
+  padding: 0 13px;
+  font-size: 13px;
 }
 
 .site-footer {

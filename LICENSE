@@ -1,0 +1,27 @@
+Copyright (c) 2026 KHALIDioi. All Rights Reserved.
+
+PROPRIETARY AND CLOSED-SOURCE SOFTWARE LICENSE
+
+This software, website, branding, and associated binary distributions ("NetCheck")
+are the exclusive proprietary property of KHALIDioi (https://github.com/KHALIDioi).
+
+1. PERMITTED USE
+   You are granted a limited, non-exclusive, revocable license to:
+   - View and interact with the official public web demo of NetCheck.
+   - Download and run official compiled NetCheck releases on your own devices
+     for personal or internal network diagnostics.
+
+2. RESTRICTIONS
+   Without prior written permission from KHALIDioi, you may NOT:
+   - Copy, modify, adapt, translate, or create derivative works of this software.
+   - Redistribute, sublicense, sell, rent, lease, or host copies of this software.
+   - Reverse engineer, decompile, disassemble, or attempt to extract source code
+     from compiled NetCheck distributions, except to the extent expressly permitted
+     by applicable law.
+
+3. DISCLAIMER OF WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE
+   USE OF THIS SOFTWARE.

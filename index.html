@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-mode="demo">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetCheck — Local Network Device Scanner</title>
+  <meta name="description" content="NetCheck discovers active devices on your local network — IP addresses, hostnames, MAC vendors, Watch Mode, and Live Ping — with strictly zero port scanning." />
+  <meta property="og:title" content="NetCheck — Local Network Device Scanner" />
+  <meta property="og:description" content="Safe, bilingual (EN/AR) local network host discovery dashboard with zero port scanning, Watch Mode, device management, and live ICMP ping charts." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23fff' stroke-width='2' opacity='0.45'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%23fff' stroke-width='2' opacity='0.8'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23fff'/%3E%3Cpath d='M16 16L23 9' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" opacity="0.35"></circle>
+            <circle cx="12" cy="12" r="5" opacity="0.65"></circle>
+            <circle cx="12" cy="12" r="1.75" fill="currentColor"></circle>
+            <path d="M12 12L18.4 5.6"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">NetCheck</span>
+          <span class="brand-subtitle" data-i18n="brandSubtitle">Local Network Device Scanner</span>
+        </div>
+      </div>
+
+      <div class="topbar-meta">
+        <span id="trustPill" class="trust-pill" title="Strictly uses ICMP ping, OS ARP cache, and hostname lookups. No TCP or UDP ports are ever tested.">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zm3.707 6.763a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span data-i18n="noPortScanning">No Port Scanning</span>
+        </span>
+
+        <span id="hostChip" class="host-chip" dir="ltr" title="Local machine running NetCheck">
+          Detecting host...
+        </span>
+
+        <a
+          id="makerBtn"
+          class="maker-btn"
+          href="https://github.com/KHALIDioi"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="GitHub — KHALIDioi"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+          <span data-i18n="byPrefix">By</span>
+          <strong dir="ltr">KHALIDioi</strong>
+        </a>
+
+        <div class="lang-switch" role="group" aria-label="Language switcher">
+          <button id="langEnBtn" class="lang-btn active" type="button" data-lang="en">EN</button>
+          <button id="langArBtn" class="lang-btn" type="button" data-lang="ar">عربي</button>
+        </div>
+
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle color theme" title="Toggle light/dark theme">
+          <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+          <svg id="themeIconMoon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Menu Navigation Bar -->
+    <nav class="main-nav" aria-label="Main menu">
+      <div class="main-nav-inner" role="tablist">
+        <button class="nav-tab active" type="button" role="tab" aria-selected="true" data-tab="scanner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 12l5-5"></path>
+          </svg>
+          <span data-i18n="navScanner">Scanner</span>
+          <span id="navScannerBadge" class="nav-badge">0</span>
+        </button>
+
+        <button class="nav-tab" type="button" role="tab" aria-selected="false" data-tab="devices">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+          <span data-i18n="navMyDevices">My Devices</span>
+          <span id="navDevicesBadge" class="nav-badge">0</span>
+        </button>
+
+        <button class="nav-tab" type="button" role="tab" aria-selected="false" data-tab="history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <polyline points="12 7 12 12 15 15"></polyline>
+          </svg>
+          <span data-i18n="navHistory">History</span>
+          <span id="navHistoryBadge" class="nav-badge">0</span>
+        </button>
+
+        <button class="nav-tab" type="button" role="tab" aria-selected="false" data-tab="tools">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <span data-i18n="navTools">Quick Tools</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Interactive Portfolio Demo Banner (auto-shown only when hosted as a static website) -->
+    <section id="demoBanner" class="demo-banner hidden" aria-label="Interactive portfolio preview">
+      <div class="demo-banner-copy">
+        <span class="demo-pill" data-i18n="demoBadge">Live Interactive Demo</span>
+        <p data-i18n="demoDescription">
+          Browsers block websites from scanning your private Wi-Fi for security. Try every feature right here on a simulated home network, or download the local desktop app to scan your real Wi-Fi offline.
+        </p>
+      </div>
+      <div class="demo-banner-actions">
+        <a
+          class="btn btn-primary demo-download-btn"
+          href="https://github.com/KHALIDioi/netcheck/releases/latest"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="demoDownloadBtn">Download Local App</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 1: SCANNER ==================== -->
+    <div id="tab-scanner" class="tab-panel active">
+      <!-- Control Card -->
+      <section class="card control-card" aria-label="Network scan controls">
+        <form id="scanForm" class="scan-form" autocomplete="off">
+          <div class="field field-interface">
+            <label for="interfaceSelect" data-i18n="networkInterface">Network Interface</label>
+            <div class="input-with-btn">
+              <select id="interfaceSelect" dir="ltr" aria-label="Detected network interface">
+                <option value="">Detecting interfaces...</option>
+              </select>
+              <button id="refreshInterfacesBtn" class="icon-btn-subtle" type="button" title="Re-detect network interfaces" aria-label="Refresh interfaces">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12a9 9 0 11-2.64-6.36"></path>
+                  <polyline points="21 3 21 9 15 9"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="field field-target">
+            <label for="targetInput" data-i18n="subnetOrRange">Subnet or IP Range</label>
+            <input
+              id="targetInput"
+              type="text"
+              dir="ltr"
+              placeholder="e.g. 192.168.1.0/24 or 192.168.1.1-50"
+              spellcheck="false"
+              required
+            />
+          </div>
+
+          <div class="field field-timeout">
+            <label for="timeoutSelect" data-i18n="pingSpeed">Ping Speed</label>
+            <select id="timeoutSelect" aria-label="Ping timeout">
+              <option value="500" data-i18n="speedFast">Fast (500 ms)</option>
+              <option value="800" selected data-i18n="speedBalanced">Balanced (800 ms)</option>
+              <option value="1500" data-i18n="speedThorough">Thorough (1500 ms)</option>
+            </select>
+          </div>
+
+          <div class="field field-watch">
+            <label for="watchSelect" data-i18n="watchMode">Watch Mode</label>
+            <select id="watchSelect" aria-label="Auto-scan interval">
+              <option value="0" selected data-i18n="watchOff">Off</option>
+              <option value="30" data-i18n="watch30">Every 30s</option>
+              <option value="60" data-i18n="watch60">Every 60s</option>
+            </select>
+          </div>
+
+          <div class="field field-action">
+            <label class="sr-only" for="scanBtn" data-i18n="scanNetwork">Scan Network</label>
+            <button id="scanBtn" class="btn btn-primary" type="submit">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span id="scanBtnText" data-i18n="scanNetwork">Scan Network</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Progress Bar Area -->
+        <div id="progressArea" class="progress-area">
+          <div class="progress-header">
+            <div class="progress-status">
+              <span id="statusDot" class="status-dot idle"></span>
+              <span id="phaseText" data-i18n="readyStatus">Ready to check your local network</span>
+              <span id="watchCountdown" class="watch-chip hidden"></span>
+            </div>
+            <div class="progress-meta">
+              <span id="progressCount" class="mono muted"></span>
+              <span id="progressPercent" class="mono strong" dir="ltr"></span>
+            </div>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+            <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Contextual Notice / Error Banner -->
+        <div id="noticeBanner" class="banner hidden" role="status"></div>
+      </section>
+
+      <!-- Summary KPI Strip -->
+      <section class="kpi-grid" aria-label="Scan summary metrics">
+        <article class="kpi-card">
+          <span class="kpi-label" data-i18n="kpiDevices">Devices Found</span>
+          <span id="kpiDevices" class="kpi-value">—</span>
+          <span id="kpiDevicesSub" class="kpi-sub" data-i18n="kpiDevicesSubIdle">Active on subnet</span>
+        </article>
+
+        <article class="kpi-card">
+          <span class="kpi-label" data-i18n="kpiNamed">Named Devices</span>
+          <span id="kpiNamed" class="kpi-value">—</span>
+          <span id="kpiNamedSub" class="kpi-sub" data-i18n="kpiNamedSubIdle">Resolved hostnames</span>
+        </article>
+
+        <article class="kpi-card">
+          <span class="kpi-label" data-i18n="kpiTarget">Scanned Range</span>
+          <span id="kpiTarget" class="kpi-value kpi-mono" dir="ltr">—</span>
+          <span id="kpiTargetSub" class="kpi-sub" data-i18n="kpiTargetSubIdle">IPv4 addresses</span>
+        </article>
+
+        <article class="kpi-card">
+          <span class="kpi-label" data-i18n="kpiDuration">Check Duration</span>
+          <span id="kpiDuration" class="kpi-value" dir="ltr">—</span>
+          <span id="kpiModeSub" class="kpi-sub" data-i18n="kpiModeNoPorts">No ports tested</span>
+        </article>
+      </section>
+
+      <!-- Devices Table Card -->
+      <section class="card table-card" aria-label="Discovered devices">
+        <div class="table-toolbar">
+          <div class="toolbar-left">
+            <h2 class="section-title" data-i18n="discoveredDevices">Discovered Devices</h2>
+            <span id="visibleCountBadge" class="count-badge">0</span>
+          </div>
+
+          <div class="toolbar-right">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input id="searchInput" type="search" placeholder="Filter IP, name, vendor, or MAC..." aria-label="Filter devices" />
+            </div>
+
+            <div class="filter-pills" role="group" aria-label="Filter devices">
+              <button type="button" class="pill-btn active" data-filter="all" data-i18n="filterAll">All</button>
+              <button type="button" class="pill-btn" data-filter="named" data-i18n="filterNamed">Named</button>
+              <button type="button" class="pill-btn" data-filter="unnamed" data-i18n="filterUnnamed">Unnamed</button>
+              <button type="button" class="pill-btn" data-filter="trusted" data-i18n="filterTrusted">Trusted</button>
+            </div>
+
+            <!-- Unified Download Results Dropdown Button -->
+            <div class="download-dropdown" id="downloadDropdown">
+              <button id="downloadResultsBtn" class="btn btn-download" type="button" disabled aria-haspopup="true" aria-expanded="false">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span data-i18n="downloadResults">Download Results</span>
+                <svg class="chevron-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+              <div id="downloadMenu" class="download-menu hidden" role="menu">
+                <button id="exportCsvBtn" class="download-menu-item" type="button" role="menuitem">
+                  <span class="file-ext">CSV</span>
+                  <span data-i18n="downloadCsv">Spreadsheet (.csv)</span>
+                </button>
+                <button id="exportJsonBtn" class="download-menu-item" type="button" role="menuitem">
+                  <span class="file-ext">JSON</span>
+                  <span data-i18n="downloadJson">Structured Data (.json)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="device-table">
+            <thead>
+              <tr>
+                <th class="sortable" data-sort="ip">
+                  <span data-i18n="colIp">IP Address</span>
+                  <span class="sort-indicator" aria-hidden="true"></span>
+                </th>
+                <th class="sortable" data-sort="name">
+                  <span data-i18n="colName">Device Name</span>
+                  <span class="sort-indicator" aria-hidden="true"></span>
+                </th>
+                <th class="sortable" data-sort="latency">
+                  <span data-i18n="colStatus">Status</span>
+                  <span class="sort-indicator" aria-hidden="true"></span>
+                </th>
+                <th class="sortable" data-sort="discovery">
+                  <span data-i18n="colDiscovery">Discovery</span>
+                  <span class="sort-indicator" aria-hidden="true"></span>
+                </th>
+                <th class="sortable" data-sort="mac">
+                  <span data-i18n="colMac">MAC Address</span>
+                  <span class="sort-indicator" aria-hidden="true"></span>
+                </th>
+                <th class="actions-col">
+                  <span data-i18n="colActions">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="deviceTableBody">
+              <tr class="empty-row">
+                <td colspan="6">
+                  <div class="empty-state">
+                    <p class="empty-title" data-i18n="emptyInitTitle">Preparing initial network check...</p>
+                    <p class="empty-desc" data-i18n="emptyInitDesc">NetCheck discovers devices via ICMP ping, OS ARP cache, and hostname lookups without scanning ports.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Animated Personality "How NetCheck Works" Showcase -->
+      <section class="info-grid" aria-label="How NetCheck works">
+        <article class="info-card info-card-shield">
+          <div class="info-anim" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <circle class="anim-shield-ring" cx="32" cy="32" r="24" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4"></circle>
+              <path class="anim-shield-body" d="M32 10L50 17V31C50 42.5 42.2 51.4 32 55C21.8 51.4 14 42.5 14 31V17L32 10Z" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"></path>
+              <path class="anim-shield-check" d="M24.5 32.5L29.6 37.6L40 26.8" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path>
+              <circle class="anim-spark spark-1" cx="12" cy="14" r="2.2" fill="currentColor"></circle>
+              <circle class="anim-spark spark-2" cx="53" cy="46" r="1.8" fill="currentColor"></circle>
+            </svg>
+          </div>
+          <div class="info-copy">
+            <span class="info-step">01</span>
+            <h3 data-i18n="info1Title">Zero Port Scanning</h3>
+            <p data-i18n="info1Desc">Politely knocks at the front door — never rattles your windows. Zero TCP or UDP ports are ever touched.</p>
+          </div>
+        </article>
+
+        <article class="info-card info-card-radar">
+          <div class="info-anim" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <circle class="anim-ripple ripple-1" cx="32" cy="32" r="10" stroke="currentColor" stroke-width="1.6"></circle>
+              <circle class="anim-ripple ripple-2" cx="32" cy="32" r="10" stroke="currentColor" stroke-width="1.4"></circle>
+              <circle cx="32" cy="32" r="23" stroke="currentColor" stroke-opacity="0.28" stroke-width="1.6"></circle>
+              <circle cx="32" cy="32" r="14" stroke="currentColor" stroke-opacity="0.22" stroke-width="1.4"></circle>
+              <g class="anim-radar-sweep">
+                <path d="M32 32L32 9A23 23 0 0 1 51 19Z" fill="currentColor" fill-opacity="0.26"></path>
+                <line x1="32" y1="32" x2="32" y2="9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></line>
+              </g>
+              <circle cx="32" cy="32" r="3" fill="currentColor"></circle>
+              <circle class="anim-blip blip-1" cx="44" cy="22" r="2.6" fill="currentColor"></circle>
+              <circle class="anim-blip blip-2" cx="22" cy="41" r="2.3" fill="currentColor"></circle>
+            </svg>
+          </div>
+          <div class="info-copy">
+            <span class="info-step">02</span>
+            <h3 data-i18n="info2Title">ICMP Ping + OS ARP Cache</h3>
+            <p data-i18n="info2Desc">Sends a quick radar ping across your Wi-Fi, then peeks at your system's ARP table to catch even shy, firewalled devices.</p>
+          </div>
+        </article>
+
+        <article class="info-card info-card-names">
+          <div class="info-anim" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <path class="anim-wave wave-1" d="M22 18C27.5 13 36.5 13 42 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+              <path class="anim-wave wave-2" d="M16 13C25 5.5 39 5.5 48 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+              <g class="anim-tag-float">
+                <rect x="13" y="24" width="38" height="26" rx="7" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2.1"></rect>
+                <circle cx="22.5" cy="37" r="3.4" fill="currentColor"></circle>
+                <line x1="30" y1="33.5" x2="43" y2="33.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></line>
+                <line x1="30" y1="40.5" x2="39" y2="40.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-opacity="0.65"></line>
+              </g>
+            </svg>
+          </div>
+          <div class="info-copy">
+            <span class="info-step">03</span>
+            <h3 data-i18n="info3Title">Multi-Protocol Device Names</h3>
+            <p data-i18n="info3Desc">Listens for friendly hello broadcasts via mDNS/Bonjour, NetBIOS, UPnP & DNS — plus remembers your own custom nicknames.</p>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <!-- ==================== TAB 2: MY DEVICES ==================== -->
+    <div id="tab-devices" class="tab-panel hidden">
+      <section class="card panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title" data-i18n="myDevicesTitle">My Saved & Trusted Devices</h2>
+            <p class="panel-subtitle" data-i18n="myDevicesSubtitle">Custom nicknames, icons, and trusted badges follow each device's MAC address automatically across future scans.</p>
+          </div>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="myDevicesSearch" type="search" placeholder="Search saved devices..." />
+          </div>
+        </div>
+
+        <div id="myDevicesList" class="saved-devices-grid"></div>
+      </section>
+    </div>
+
+    <!-- ==================== TAB 3: SCAN HISTORY ==================== -->
+    <div id="tab-history" class="tab-panel hidden">
+      <!-- Latest Changes Diff Card -->
+      <section id="historyDiffSection" class="diff-grid hidden" aria-label="Changes since previous scan">
+        <article class="card diff-card diff-new">
+          <div class="diff-header">
+            <span class="diff-dot new"></span>
+            <h3 data-i18n="diffNewTitle">New Devices Joined</h3>
+            <span id="diffNewCount" class="count-badge">0</span>
+          </div>
+          <div id="diffNewList" class="diff-list"></div>
+        </article>
+
+        <article class="card diff-card diff-offline">
+          <div class="diff-header">
+            <span class="diff-dot offline"></span>
+            <h3 data-i18n="diffOfflineTitle">Went Offline Since Last Scan</h3>
+            <span id="diffOfflineCount" class="count-badge">0</span>
+          </div>
+          <div id="diffOfflineList" class="diff-list"></div>
+        </article>
+      </section>
+
+      <section class="card panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title" data-i18n="historyTitle">Scan History</h2>
+            <p class="panel-subtitle" data-i18n="historySubtitle">Click any previous scan to inspect the devices discovered at that time.</p>
+          </div>
+          <button id="clearHistoryBtn" class="btn btn-secondary" type="button" data-i18n="clearHistory">Clear History</button>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </div>
+
+    <!-- ==================== TAB 4: QUICK TOOLS ==================== -->
+    <div id="tab-tools" class="tab-panel hidden">
+      <div class="tools-layout">
+        <!-- Live Ping Monitor -->
+        <section class="card panel-card ping-monitor-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="section-title" data-i18n="pingMonitorTitle">Live Ping Monitor</h2>
+              <p class="panel-subtitle" data-i18n="pingMonitorSubtitle">Test latency to your router vs the internet (ICMP only, zero port testing) to pinpoint Wi-Fi vs ISP lag.</p>
+            </div>
+          </div>
+
+          <form id="pingMonitorForm" class="ping-form" autocomplete="off">
+            <input id="pingTargetInput" type="text" dir="ltr" placeholder="e.g. 192.168.1.1 or 1.1.1.1" required />
+            <button id="pingStartBtn" class="btn btn-primary" type="submit" data-i18n="startPing">Start Ping</button>
+          </form>
+
+          <div class="preset-chips">
+            <button id="presetRouterBtn" class="preset-chip" type="button" data-i18n="presetRouter">My Router</button>
+            <button class="preset-chip" type="button" data-ping-preset="1.1.1.1">Cloudflare (1.1.1.1)</button>
+            <button class="preset-chip" type="button" data-ping-preset="8.8.8.8">Google DNS (8.8.8.8)</button>
+          </div>
+
+          <div class="ping-stats-grid">
+            <div class="mini-stat">
+              <span class="mini-stat-label" data-i18n="pingLast">Last</span>
+              <span id="pingStatLast" class="mini-stat-val mono" dir="ltr">—</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label" data-i18n="pingAvg">Average</span>
+              <span id="pingStatAvg" class="mini-stat-val mono" dir="ltr">—</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label" data-i18n="pingMinMax">Min / Max</span>
+              <span id="pingStatMinMax" class="mini-stat-val mono" dir="ltr">—</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-label" data-i18n="pingLoss">Packet Loss</span>
+              <span id="pingStatLoss" class="mini-stat-val mono" dir="ltr">—</span>
+            </div>
+          </div>
+
+          <div class="sparkline-box">
+            <svg id="pingSparkline" viewBox="0 0 460 120" preserveAspectRatio="none" aria-label="Ping latency chart">
+              <defs>
+                <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="currentColor" stop-opacity="0.32"></stop>
+                  <stop offset="100%" stop-color="currentColor" stop-opacity="0.02"></stop>
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="30" x2="460" y2="30" class="spark-grid-line"></line>
+              <line x1="0" y1="60" x2="460" y2="60" class="spark-grid-line"></line>
+              <line x1="0" y1="90" x2="460" y2="90" class="spark-grid-line"></line>
+              <path id="sparkArea" d="" fill="url(#sparkGrad)"></path>
+              <path id="sparkLine" d="" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              <circle id="sparkDot" cx="-10" cy="-10" r="4.5" fill="currentColor"></circle>
+            </svg>
+            <span id="sparkEmptyMsg" class="spark-empty" data-i18n="sparkEmpty">Start a live ping to watch latency in real time</span>
+          </div>
+
+          <div id="pingLog" class="ping-log"></div>
+        </section>
+
+        <!-- Local Network Info Card -->
+        <section class="card panel-card">
+          <div class="panel-header">
+            <div>
+              <h2 class="section-title" data-i18n="netDetailsTitle">Local Network Details</h2>
+              <p class="panel-subtitle" data-i18n="netDetailsSubtitle">Active adapter, gateway, and host properties on this computer.</p>
+            </div>
+          </div>
+          <div id="netDetailsGrid" class="details-grid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== EDIT / RENAME DEVICE MODAL ==================== -->
+  <div id="editModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 id="editModalTitle" data-i18n="modalEditTitle">Customize Device</h3>
+          <p id="editModalMeta" class="modal-meta mono" dir="ltr"></p>
+        </div>
+        <button id="closeModalBtn" class="icon-btn" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <form id="editDeviceForm" class="modal-body" autocomplete="off">
+        <div class="field">
+          <label for="editNicknameInput" data-i18n="modalNickname">Custom Nickname</label>
+          <input id="editNicknameInput" type="text" maxlength="80" placeholder="e.g. My iPhone, Living Room TV" />
+        </div>
+
+        <div class="field">
+          <label data-i18n="modalIcon">Device Icon</label>
+          <div id="iconPickerGrid" class="icon-picker-grid"></div>
+        </div>
+
+        <div class="field">
+          <label for="editNoteInput" data-i18n="modalNote">Note (optional)</label>
+          <input id="editNoteInput" type="text" maxlength="200" placeholder="e.g. Bedroom Wi-Fi, Dad's phone" />
+        </div>
+
+        <label class="trust-toggle-row">
+          <input id="editTrustedCheck" type="checkbox" />
+          <span class="toggle-track" aria-hidden="true"></span>
+          <div>
+            <strong data-i18n="modalTrustedLabel">Mark as Trusted Device</strong>
+            <span class="muted small-block" data-i18n="modalTrustedDesc">Trusted devices get a green badge and won't trigger unknown-device alerts.</span>
+          </div>
+        </label>
+
+        <div class="modal-footer">
+          <button id="deleteCustomBtn" class="btn btn-ghost-danger hidden" type="button" data-i18n="modalReset">Remove Custom</button>
+          <div class="modal-footer-right">
+            <button id="cancelModalBtn" class="btn btn-secondary" type="button" data-i18n="modalCancel">Cancel</button>
+            <button class="btn btn-primary" type="submit" data-i18n="modalSave">Save Device</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <span>
+        &copy; 2026 <strong>NetCheck</strong> ·
+        <span data-i18n="footerCreated">Created by</span>
+        <a href="https://github.com/KHALIDioi" target="_blank" rel="noopener noreferrer" dir="ltr">KHALIDioi</a>
+      </span>
+      <span class="muted" data-i18n="footerRights">All Rights Reserved · Strictly Zero Port Scanning</span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
